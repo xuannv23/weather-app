@@ -41,12 +41,12 @@ public class FutureActivity extends AppCompatActivity {
 
     private void initRecycleView() {
         ArrayList<Future> items = new ArrayList<>();
-        items.add(new Future("Sat", "storm", "Storm", 25,10));
-        items.add(new Future("Sun", "sunny", "Sunny", 25,10));
-        items.add(new Future("Mon", "rainy", "Rainy", 25,10));
-        items.add(new Future("Tue", "snowy", "Snowy", 25,10));
-        items.add(new Future("Wen", "windy", "Windy", 25,10));
-        items.add(new Future("Thu", "cloudy", "Cloudy", 25,10));
+        items.add(new Future("Sat", R.drawable.storm, "Storm", 25,10));
+        items.add(new Future("Sun", R.drawable.sunny, "Sunny", 25,10));
+        items.add(new Future("Mon", R.drawable.rainy, "Rainy", 25,10));
+        items.add(new Future("Tue", R.drawable.snowy, "Snowy", 25,10));
+        items.add(new Future("Wen", R.drawable.windy, "Windy", 25,10));
+        items.add(new Future("Thu", R.drawable.cloudy, "Cloudy", 25,10));
         recyclerView = findViewById(R.id.RVDay);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         adapterDay = new FutureAdapter(items, this);

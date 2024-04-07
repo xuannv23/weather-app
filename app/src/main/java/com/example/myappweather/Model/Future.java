@@ -2,12 +2,12 @@ package com.example.myappweather.Model;
 
 public class Future {
     private String day;
-    private String picPath;
+    private int picPath;
     private String status;
     private int hightTemp;
     private int lowTemp;
 
-    public Future(String day, String picPath, String status, int hightTemp, int lowTemp) {
+    public Future(String day, int picPath, String status, int hightTemp, int lowTemp) {
         this.day = day;
         this.picPath = picPath;
         this.status = status;
@@ -23,11 +23,11 @@ public class Future {
         this.day = day;
     }
 
-    public String getPicPath() {
+    public int getPicPath() {
         return picPath;
     }
 
-    public void setPicPath(String picPath) {
+    public void setPicPath(int picPath) {
         this.picPath = picPath;
     }
 

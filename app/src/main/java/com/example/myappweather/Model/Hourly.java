@@ -3,9 +3,9 @@ package com.example.myappweather.Model;
 public class Hourly {
     private String hour;
     private int temp;
-    private String picPath;
+    private int picPath;
 
-    public Hourly(String hour, int temp, String picPath) {
+    public Hourly(String hour, int temp, int picPath) {
         this.hour = hour;
         this.temp = temp;
         this.picPath = picPath;
@@ -27,11 +27,11 @@ public class Hourly {
         this.temp = temp;
     }
 
-    public String getPicPath() {
+    public int getPicPath() {
         return picPath;
     }
 
-    public void setPicPath(String picPath) {
+    public void setPicPath(int picPath) {
         this.picPath = picPath;
     }
 }

@@ -40,8 +40,9 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
         holder.status.setText(items.get(position).getStatus());
         holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");
         holder.lowTxt.setText(items.get(position).getLowTemp()+"°C");
-        int drawableResourceId = holder.itemView.getResources().getIdentifier(items.get(position).getPicPath(), "drawable", holder.itemView.getContext().getPackageName());
-        Glide.with(context).load(drawableResourceId).into(holder.pic);
+//        int drawableResourceId = holder.itemView.getResources().getIdentifier(items.get(position).getPicPath(), "drawable", holder.itemView.getContext().getPackageName());
+//        Glide.with(context).load(drawableResourceId).into(holder.pic);
+        holder.pic.setImageResource(items.get(position).getPicPath());
     }
 
     @Override

@@ -39,14 +39,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRecycleView() {
         ArrayList<Hourly> items = new ArrayList<>();
-        items.add(new Hourly("10 pm",20, "cloudy"));
-        items.add(new Hourly("11 pm",28, "sunny"));
-        items.add(new Hourly("12 pm",21, "windy"));
-        items.add(new Hourly("1 am",22, "rainy"));
-        items.add(new Hourly("2 pm",23, "snowy"));
-        items.add(new Hourly("3 pm",24, "storm"));
-        items.add(new Hourly("4 pm",25, "sunny"));
-        items.add(new Hourly("5 pm",26, "humidity"));
+        items.add(new Hourly("10 pm",20, R.drawable.cloudy));
+        items.add(new Hourly("11 pm",28, R.drawable.sunny));
+        items.add(new Hourly("12 pm",21, R.drawable.windy));
+        items.add(new Hourly("1 am",22, R.drawable.rainy));
+        items.add(new Hourly("2 pm",23, R.drawable.snowy));
+        items.add(new Hourly("3 pm",24, R.drawable.storm));
+        items.add(new Hourly("4 pm",25, R.drawable.sunny));
+        items.add(new Hourly("5 pm",26, R.drawable.humidity));
         recyclerView = findViewById(R.id.RvHour);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         adapterHourly = new HourlyAdapter(items, this);

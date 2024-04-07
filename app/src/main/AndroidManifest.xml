@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!--     yeu cau quyen truy cap vi tri tu android-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /><!-- chinh xac-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /><!-- xap xi-->
 
     <application
         android:allowBackup="true"

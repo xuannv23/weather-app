@@ -16,6 +16,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,21 +32,49 @@ import com.android.volley.toolbox.Volley;
 import com.example.myappweather.Adapter.HourlyAdapter;
 import com.example.myappweather.Model.Hourly;
 import com.example.myappweather.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.PicassoProvider;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private RecyclerView.Adapter adapterHourly;
     private RecyclerView recyclerView;
     LocationManager locationManager;
+    TextView cityDay, mainWeather, hightLow, temp, cloud, windyspeed, humidity;
+    ImageView imvIcon;
+    String latitude, longitude;
+    EditText txtSearch;
+    ImageButton btnSearch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setView();
         initRecycleView();
         setVariable();
         ktraQuyen();
+    }
+
+    private void setView() {
+        cityDay = (TextView) findViewById(R.id.city_day);
+        mainWeather = (TextView)  findViewById(R.id.main_weather);
+        imvIcon = (ImageView)  findViewById(R.id.image_view_icon);
+        hightLow = (TextView) findViewById(R.id.hight_low);
+        temp = (TextView) findViewById(R.id.txttemp);
+        cloud = (TextView) findViewById(R.id.txtCloud);
+        windyspeed = (TextView) findViewById(R.id.txtWindySpeed);
+        humidity = (TextView) findViewById(R.id.txtHumidity);
+        txtSearch = (EditText) findViewById(R.id.txtsearch);
+        btnSearch = (ImageButton) findViewById(R.id.btnsearch);
     }
 
     private void ktraQuyen() {
@@ -56,16 +88,54 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getCurrentWeatherData(String latitude,String longitude) {
+    private void getCurrentWeatherData(String url) {
         // thực thi request mà mình gửi đi
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-        String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url
                 ,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("ket qua: ", response);
+//                        Log.d("ket qua: ", response);////////////////////////
+                        try {
+
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            //location and date
+                            String day = jsonObject.getString("dt");
+                            String city = jsonObject.getString("name");
+                            long m = Long.valueOf(day);
+                            Date date =  new Date(m * 1000L);
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE dd-MM-yyyy");
+                            String datem = simpleDateFormat.format(date);
+                            cityDay.setText(city+"__"+datem);
+
+                            //weather and icon
+                            JSONArray jsonArrayWeather = jsonObject.getJSONArray("weather");
+                            JSONObject jsonObjectWeather = jsonArrayWeather.getJSONObject(0);//lấy cái cụm thứ 0 tương ứng với cụm weather
+                            mainWeather.setText(jsonObjectWeather.getString("main"));
+                            String icon = jsonObjectWeather.getString("icon");
+                            Picasso.get().load("https://openweathermap.org/img/wn/"+icon+"@4x.png").into(imvIcon);
+
+                            //main
+                            JSONObject jsonObjectMain = jsonObject.getJSONObject("main");
+                            Double h = Double.valueOf(jsonObjectMain.getString("temp_max"));
+
+                            String hightm = String.valueOf(h.intValue());
+                            Double l = Double.valueOf(jsonObjectMain.getString("temp_min"));
+                            String lowm = String.valueOf(l.intValue());
+                            Double t = Double.valueOf(jsonObjectMain.getString("temp"));
+                            String tempm = String.valueOf(t.intValue());
+                            hightLow.setText("H:"+hightm+"° L:"+lowm+"°");
+                            temp.setText(tempm+"°C");
+
+                            //cloud,humidity and windyspeed
+                            windyspeed.setText(jsonObject.getJSONObject("wind").getString("speed")+"m/s");
+                            humidity.setText(jsonObjectMain.getString("humidity")+"%");
+                            cloud.setText(jsonObject.getJSONObject("clouds").getString("all")+"%");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
                 ,
@@ -85,10 +155,11 @@ private void getLocation() {
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            String latitude = String.valueOf(location.getLatitude());
-            String longitude = String.valueOf(location.getLongitude());
+            latitude = String.valueOf(location.getLatitude());
+            longitude = String.valueOf(location.getLongitude());
+            String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             // Xử lý vị trí hiện tại (latitude và longitude)
-            getCurrentWeatherData(latitude,longitude);
+            getCurrentWeatherData(url);
             // Ngưng lắng nghe vị trí sau khi lấy được vị trí hiện tại
             locationManager.removeUpdates(this);
         }
@@ -124,7 +195,16 @@ private void getLocation() {
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, FutureActivity.class));
+                Intent intent = new Intent(MainActivity.this, FutureActivity.class);
+                startActivity(intent);
+            }
+        });
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String city = txtSearch.getText().toString();
+                String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+                getCurrentWeatherData(link);
             }
         });
     }

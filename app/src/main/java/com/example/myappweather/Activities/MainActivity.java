@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setView();
-        initRecycleView();
         setVariable();
         ktraQuyen();
     }
@@ -75,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         humidity = (TextView) findViewById(R.id.txtHumidity);
         txtSearch = (EditText) findViewById(R.id.txtsearch);
         btnSearch = (ImageButton) findViewById(R.id.btnsearch);
+        recyclerView = findViewById(R.id.RvHour);
     }
 
     private void ktraQuyen() {
@@ -158,8 +158,10 @@ private void getLocation() {
             latitude = String.valueOf(location.getLatitude());
             longitude = String.valueOf(location.getLongitude());
             String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             // Xử lý vị trí hiện tại (latitude và longitude)
             getCurrentWeatherData(url);
+            getForeCastWeatherData(urlfc);
             // Ngưng lắng nghe vị trí sau khi lấy được vị trí hiện tại
             locationManager.removeUpdates(this);
         }
@@ -204,24 +206,67 @@ private void getLocation() {
             public void onClick(View v) {
                 String city = txtSearch.getText().toString();
                 String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+                String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
                 getCurrentWeatherData(link);
+                getForeCastWeatherData(urlc);
             }
         });
     }
+    private void getForeCastWeatherData(String url){
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url
+                ,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+//                        Log.d("ket qua: ", response);////////////////////////
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArrayList = jsonObject.getJSONArray("list");
 
-    private void initRecycleView() {
-        ArrayList<Hourly> items = new ArrayList<>();
-        items.add(new Hourly("10 pm",20, R.drawable.cloudy));
-        items.add(new Hourly("11 pm",28, R.drawable.sunny));
-        items.add(new Hourly("12 pm",21, R.drawable.windy));
-        items.add(new Hourly("1 am",22, R.drawable.rainy));
-        items.add(new Hourly("2 pm",23, R.drawable.snowy));
-        items.add(new Hourly("3 pm",24, R.drawable.storm));
-        items.add(new Hourly("4 pm",25, R.drawable.sunny));
-        items.add(new Hourly("5 pm",26, R.drawable.humidity));
-        recyclerView = findViewById(R.id.RvHour);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        adapterHourly = new HourlyAdapter(items, this);
-        recyclerView.setAdapter(adapterHourly);
+                            JSONObject jsonObjectHour;
+
+                            ArrayList<Hourly> items = new ArrayList<>();
+                            for(int i=0;i<5;i++){
+                                jsonObjectHour = jsonArrayList.getJSONObject(i);
+                                String time = toTime(jsonObjectHour.getString("dt"));
+                                Double h = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp"));
+                                int temp = h.intValue();
+
+                                String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
+                                String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
+
+
+//                                Log.d("hahhahhahahahahaha",time);
+//                                Log.d("hahhahhahahahahaha",String.valueOf(temp));
+//                                Log.d("hahhahhahahahahaha",link);
+                                items.add(new Hourly(time,temp, link));
+                            }
+                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
+                            adapterHourly = new HourlyAdapter(items, MainActivity.this);
+                            recyclerView.setAdapter(adapterHourly);
+                            adapterHourly.notifyDataSetChanged();
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                ,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+        requestQueue.add(stringRequest);
+    }
+
+    private String toTime(String day) {
+        long m = Long.valueOf(day);
+        Date date =  new Date(m * 1000L);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        String datem = simpleDateFormat.format(date);
+        return datem;
     }
 }

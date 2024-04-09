@@ -53,7 +53,7 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/imageView3"
+                        android:id="@+id/pic1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.5"
@@ -68,7 +68,7 @@
 
 
                         <TextView
-                            android:id="@+id/textView5"
+                            android:id="@+id/city1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Tomorrow"
@@ -76,7 +76,7 @@
                             android:textColor="@color/white"/>
 
                         <TextView
-                            android:id="@+id/textView14"
+                            android:id="@+id/temp1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="25°C"
@@ -85,7 +85,7 @@
                             android:layout_marginTop="8dp"
                             android:layout_marginBottom="8dp"/>
                         <TextView
-                            android:id="@+id/textView15"
+                            android:id="@+id/main1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Mostly Cloudy"
@@ -114,10 +114,10 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:layout_gravity="center"
-                            app:srcCompat="@drawable/rain" />
+                            app:srcCompat="@drawable/cloudy" />
 
                         <TextView
-                            android:id="@+id/textView6"
+                            android:id="@+id/cloudy1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="22%"
@@ -129,7 +129,7 @@
                             android:id="@+id/textView7"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Rain"
+                            android:text="Cloudy"
                             android:textAlignment="center"
                             android:textColor="@color/white"
                             android:textStyle="bold" />
@@ -150,10 +150,10 @@
                             app:srcCompat="@drawable/wind" />
 
                         <TextView
-                            android:id="@+id/textView8"
+                            android:id="@+id/windy1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="12km/h"
+                            android:text="12m/s"
                             android:textAlignment="center"
                             android:textColor="@color/white"
                             android:textStyle="bold" />
@@ -183,7 +183,7 @@
                             app:srcCompat="@drawable/humidity" />
 
                         <TextView
-                            android:id="@+id/textView10"
+                            android:id="@+id/humidity1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="18%"

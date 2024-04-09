@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     String latitude, longitude;
     EditText txtSearch;
     ImageButton btnSearch;
+    String x;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
                         try {
 
                             JSONObject jsonObject = new JSONObject(response);
-
                             //location and date
                             String day = jsonObject.getString("dt");
                             String city = jsonObject.getString("name");
@@ -159,6 +160,7 @@ private void getLocation() {
             longitude = String.valueOf(location.getLongitude());
             String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             // Xử lý vị trí hiện tại (latitude và longitude)
             getCurrentWeatherData(url);
             getForeCastWeatherData(urlfc);
@@ -188,7 +190,7 @@ private void getLocation() {
                 getLocation();
             } else {
                 // Nếu người dùng từ chối quyền, thông báo cho họ biết rằng vị trí không thể lấy được
-                Toast.makeText(this, "Location permission denied. Cannot get location.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Không thể lấy được vị trí!", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -197,7 +199,9 @@ private void getLocation() {
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(MainActivity.this, FutureActivity.class);
+                intent.putExtra("link",x);
                 startActivity(intent);
             }
         });
@@ -205,10 +209,16 @@ private void getLocation() {
             @Override
             public void onClick(View v) {
                 String city = txtSearch.getText().toString();
-                String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-                String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-                getCurrentWeatherData(link);
-                getForeCastWeatherData(urlc);
+                if(isEmpty(city)){
+                    Toast.makeText(MainActivity.this,"Cần nhập đủ thông tin",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+                    String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+                    x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+                    getCurrentWeatherData(link);
+                    getForeCastWeatherData(urlc);
+                }
             }
         });
     }
@@ -227,7 +237,7 @@ private void getLocation() {
                             JSONObject jsonObjectHour;
 
                             ArrayList<Hourly> items = new ArrayList<>();
-                            for(int i=0;i<5;i++){
+                            for(int i=0;i<8;i++){
                                 jsonObjectHour = jsonArrayList.getJSONObject(i);
                                 String time = toTime(jsonObjectHour.getString("dt"));
                                 Double h = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp"));
@@ -236,10 +246,6 @@ private void getLocation() {
                                 String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
                                 String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
 
-
-//                                Log.d("hahhahhahahahahaha",time);
-//                                Log.d("hahhahhahahahahaha",String.valueOf(temp));
-//                                Log.d("hahhahhahahahahaha",link);
                                 items.add(new Hourly(time,temp, link));
                             }
                             recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
@@ -256,7 +262,7 @@ private void getLocation() {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Toast.makeText(MainActivity.this, "kiem tra lai noi dung ban nhap", Toast.LENGTH_SHORT).show();
                     }
                 });
         requestQueue.add(stringRequest);
@@ -268,5 +274,8 @@ private void getLocation() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         String datem = simpleDateFormat.format(date);
         return datem;
+    }
+    static boolean isEmpty(String txt) {
+        return TextUtils.isEmpty(txt);
     }
 }

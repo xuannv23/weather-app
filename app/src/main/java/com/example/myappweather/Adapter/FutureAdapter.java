@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.myappweather.Model.Future;
 import com.example.myappweather.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -40,9 +41,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
         holder.status.setText(items.get(position).getStatus());
         holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");
         holder.lowTxt.setText(items.get(position).getLowTemp()+"°C");
-//        int drawableResourceId = holder.itemView.getResources().getIdentifier(items.get(position).getPicPath(), "drawable", holder.itemView.getContext().getPackageName());
-//        Glide.with(context).load(drawableResourceId).into(holder.pic);
-        holder.pic.setImageResource(items.get(position).getPicPath());
+        Picasso.get().load(items.get(position).getPicPath()).into(holder.pic);
     }
 
     @Override

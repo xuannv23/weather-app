@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -43,6 +44,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -63,12 +65,14 @@ public class MainActivity extends AppCompatActivity {
         setView();
         setVariable();
         ktraQuyen();
+
+
     }
 
     private void setView() {
         cityDay = (TextView) findViewById(R.id.city_day);
-        mainWeather = (TextView)  findViewById(R.id.main_weather);
-        imvIcon = (ImageView)  findViewById(R.id.image_view_icon);
+        mainWeather = (TextView) findViewById(R.id.main_weather);
+        imvIcon = (ImageView) findViewById(R.id.image_view_icon);
         hightLow = (TextView) findViewById(R.id.hight_low);
         temp = (TextView) findViewById(R.id.txttemp);
         cloud = (TextView) findViewById(R.id.txtCloud);
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void ktraQuyen() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //nếu chưa có quyền, yêu cầu quyền truy cập vị trí
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
@@ -90,6 +95,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void getLocation(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Double latitude = location.getLatitude();
+        Double longitude = location.getLongitude();
+        String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+        String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+        x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+        // Xử lý vị trí hiện tại (latitude và longitude)
+        getCurrentWeatherData(url);
+        getForeCastWeatherData(urlfc);
+    }
     private void getCurrentWeatherData(String url) {
         // thực thi request mà mình gửi đi
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
@@ -148,39 +168,40 @@ public class MainActivity extends AppCompatActivity {
                 });
         requestQueue.add(stringRequest);
     }
-private void getLocation() {
-    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        return;
-    }
-    //yêu cầu cập nhật vị trí
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-        @Override
-        public void onLocationChanged(@NonNull Location location) {
-            latitude = String.valueOf(location.getLatitude());
-            longitude = String.valueOf(location.getLongitude());
-            String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-            String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-            x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-            // Xử lý vị trí hiện tại (latitude và longitude)
-            getCurrentWeatherData(url);
-            getForeCastWeatherData(urlfc);
-            // Ngưng lắng nghe vị trí sau khi lấy được vị trí hiện tại
-            locationManager.removeUpdates(this);
-        }
 
-        @Override
-        public void onProviderDisabled(@NonNull String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(@NonNull String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    });
-}
+//private void getLocation() {
+//    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//        return;
+//    }
+//    //yêu cầu cập nhật vị trí
+//    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+//        @Override
+//        public void onLocationChanged(@NonNull Location location) {
+//            latitude = String.valueOf(location.getLatitude());
+//            longitude = String.valueOf(location.getLongitude());
+//            String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+//            String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+//            x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+//            // Xử lý vị trí hiện tại (latitude và longitude)
+//            getCurrentWeatherData(url);
+//            getForeCastWeatherData(urlfc);
+//            // Ngưng lắng nghe vị trí sau khi lấy được vị trí hiện tại
+//            locationManager.removeUpdates(this);
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(@NonNull String provider) {
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(@NonNull String provider) {
+//        }
+//
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//    });
+//}
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

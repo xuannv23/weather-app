@@ -53,6 +53,13 @@ public class FutureActivity extends AppCompatActivity {
         setVariable();
     }
 
+    public static void click(Future abc){
+//        temp1.setText(abc.get);
+//        main1.setText();
+//        cloudy1.setText();
+//        windy1.setText();
+//        humidity1.setText();
+    }
     private void setViews() {
         pic1 = (ImageView) findViewById(R.id.pic1);
         city1 = (TextView) findViewById(R.id.city1);
@@ -62,6 +69,7 @@ public class FutureActivity extends AppCompatActivity {
         windy1 = (TextView) findViewById(R.id.windy1);
         humidity1 = (TextView) findViewById(R.id.humidity1);
         recyclerView = findViewById(R.id.RVDay);
+
     }
 
     private void getForeCastWeatherData(String url){
@@ -81,7 +89,7 @@ public class FutureActivity extends AppCompatActivity {
 
                             // gan vao cai to nhat
                             Picasso.get().load("https://openweathermap.org/img/wn/"+jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon")+"@4x.png").into(pic1);
-                            city1.setText(jsonObject.getJSONObject("city").getString("name")+"tommorow");
+//                            city1.setText(jsonObject.getJSONObject("city").getString("name")+"tommorow");
                             Double t = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp"));
                             String tempm = String.valueOf(t.intValue());
                             temp1.setText(tempm+"°C");
@@ -102,7 +110,7 @@ public class FutureActivity extends AppCompatActivity {
 
                                 String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
                                 String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
-                                String status = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("description");
+                                String status = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("main");
                                 items.add(new Future(day, link, status, temph, templ));
 
                             }

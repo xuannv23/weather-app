@@ -1,16 +1,22 @@
 package com.example.myappweather.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.myappweather.Activities.FutureActivity;
+import com.example.myappweather.Activities.MainActivity;
 import com.example.myappweather.Model.Future;
 import com.example.myappweather.R;
 import com.squareup.picasso.Picasso;
@@ -21,6 +27,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
 
     ArrayList<Future> items;
     Context context;
+
 
     public FutureAdapter(ArrayList<Future> items, Context context) {
         this.items = items;
@@ -42,6 +49,11 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
         holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");
         holder.lowTxt.setText(items.get(position).getLowTemp()+"°C");
         Picasso.get().load(items.get(position).getPicPath()).into(holder.pic);
+        holder.click.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
     }
 
     @Override
@@ -52,6 +64,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
     public class viewHolder  extends RecyclerView.ViewHolder{
         TextView dayTxt, status, hightTxt, lowTxt;
         ImageView pic;
+        LinearLayout click;
         public viewHolder(@NonNull View itemView) {
             super(itemView);
             dayTxt = itemView.findViewById(R.id.dayTxt);
@@ -59,6 +72,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
             hightTxt = itemView.findViewById(R.id.hightTxt);
             lowTxt = itemView.findViewById(R.id.lowTxt);
             pic = itemView.findViewById(R.id.pic);
+            click =itemView.findViewById(R.id.click);
         }
     }
 }

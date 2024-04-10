@@ -2,6 +2,7 @@ package com.example.myappweather.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,11 +18,18 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,19 +51,21 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private RecyclerView.Adapter adapterHourly;
     private RecyclerView recyclerView;
     LocationManager locationManager;
     TextView cityDay, mainWeather, hightLow, temp, cloud, windyspeed, humidity;
     ImageView imvIcon;
-    String latitude, longitude;
-    EditText txtSearch;
-    ImageButton btnSearch;
+
+
+
     String x;
 
     @Override
@@ -63,10 +73,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setView();
-        setVariable();
         ktraQuyen();
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_weather, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Xử lý khi nhấn nút tìm kiếm hoặc nhấn phím Enter
+                timkiem(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    private void timkiem(String city) {
+        if(isEmpty(city)){
+            Toast.makeText(MainActivity.this,"Cần nhập đủ thông tin",Toast.LENGTH_SHORT).show();
+        }
+        else{
+            String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            getCurrentWeatherData(link);
+            getForeCastWeatherData(urlc);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.next5day){
+            Intent intent = new Intent(MainActivity.this, FutureActivity.class);
+            intent.putExtra("link",x);
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setView() {
@@ -78,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
         cloud = (TextView) findViewById(R.id.txtCloud);
         windyspeed = (TextView) findViewById(R.id.txtWindySpeed);
         humidity = (TextView) findViewById(R.id.txtHumidity);
-        txtSearch = (EditText) findViewById(R.id.txtsearch);
-        btnSearch = (ImageButton) findViewById(R.id.btnsearch);
+
         recyclerView = findViewById(R.id.RvHour);
     }
 
@@ -215,34 +267,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    private void setVariable() {
-        TextView nextBtn = findViewById(R.id.next7day);
-        nextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Intent intent = new Intent(MainActivity.this, FutureActivity.class);
-                intent.putExtra("link",x);
-                startActivity(intent);
-            }
-        });
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String city = txtSearch.getText().toString();
-                if(isEmpty(city)){
-                    Toast.makeText(MainActivity.this,"Cần nhập đủ thông tin",Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-                    String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-                    x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-                    getCurrentWeatherData(link);
-                    getForeCastWeatherData(urlc);
-                }
-            }
-        });
-    }
     private void getForeCastWeatherData(String url){
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url

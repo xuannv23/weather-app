@@ -23,32 +23,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"/>
 
-                <EditText
-                    android:id="@+id/txtsearch"
-                    android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:textColor="@color/white"
-                    android:layout_weight="8"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:textColorHint="@color/white"
-                    android:hint="Enter search"
-                    android:paddingLeft="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:background="@drawable/design_edt"/>
-
-                <ImageButton
-                    android:id="@+id/btnsearch"
-                    android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_weight="2"
-                    android:src="@drawable/baseline_location_searching_24"
-                    android:background="@drawable/design_btn"/>
-            </LinearLayout>
             <TextView
                 android:id="@+id/main_weather"
                 android:layout_width="match_parent"
@@ -220,15 +196,6 @@
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/next7day"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:text="Next 7 day"
-                    android:textColor="#DCA900"
-                    android:textSize="20dp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

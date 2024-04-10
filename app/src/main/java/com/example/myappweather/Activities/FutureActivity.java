@@ -94,9 +94,9 @@ public class FutureActivity extends AppCompatActivity {
                             String tempm = String.valueOf(t.intValue());
                             temp1.setText(tempm+"°C");
                             main1.setText(jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("main"));
-                            cloudy1.setText(jsonObjectHour.getJSONObject("clouds").getString("all"));
-                            windy1.setText(jsonObjectHour.getJSONObject("wind").getString("speed"));
-                            humidity1.setText(jsonObjectHour.getJSONObject("main").getString("humidity"));
+                            cloudy1.setText(jsonObjectHour.getJSONObject("clouds").getString("all") + "%");
+                            windy1.setText(jsonObjectHour.getJSONObject("wind").getString("speed") + " m/s");
+                            humidity1.setText(jsonObjectHour.getJSONObject("main").getString("humidity") + "%");
 
                             ArrayList<Future> items = new ArrayList<>();
                             for(int i=0;i<39;i+=8){

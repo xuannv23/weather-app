@@ -44,6 +44,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
 
     @Override
     public void onBindViewHolder(@NonNull FutureAdapter.viewHolder holder, int position) {
+
         holder.dayTxt.setText(items.get(position).getDay());
         holder.status.setText(items.get(position).getStatus());
         holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");

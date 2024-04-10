@@ -12,6 +12,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -49,10 +51,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapterHourly;
     private RecyclerView recyclerView;
     LocationManager locationManager;
-    TextView cityDay, mainWeather, hightLow, temp, cloud, windyspeed, humidity;
+    TextView cityDay, cityNameTxt, mainWeather, hightLow, temp, cloud, windyspeed, humidity;
     ImageView imvIcon;
 
-
+    private String cityName;
 
     String x;
 
@@ -87,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 // Xử lý khi nhấn nút tìm kiếm hoặc nhấn phím Enter
                 timkiem(query);
+                InputMethodManager mrg = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                mrg.hideSoftInputFromWindow(searchView.getWindowToken(),0);
                 return true;
             }
 
@@ -109,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
             x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             getCurrentWeatherData(link);
             getForeCastWeatherData(urlc);
+            cityNameTxt.setText(city);
+
         }
     }
 
@@ -131,8 +139,9 @@ public class MainActivity extends AppCompatActivity {
         cloud = (TextView) findViewById(R.id.txtCloud);
         windyspeed = (TextView) findViewById(R.id.txtWindySpeed);
         humidity = (TextView) findViewById(R.id.txtHumidity);
-
+        cityNameTxt = (TextView) findViewById(R.id.nameLocation);
         recyclerView = findViewById(R.id.RvHour);
+
     }
 
     private void ktraQuyen() {
@@ -147,6 +156,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String getCityName(Double lon, Double lat){
+        String cityName = "Not found";
+        Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
+        try {
+            List<Address> addresses = gcd.getFromLocation(lat, lon, 10);
+            for(Address add : addresses){
+                String city = add.getLocality();
+                if(city != null && !city.equals("")){
+                    cityName = city;
+                }else{
+                    Log.d("TAG", "City not found");
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return cityName;
+    }
     private void getLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -155,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
+        cityName = getCityName(longitude, latitude);
         String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
@@ -163,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         getForeCastWeatherData(urlfc);
     }
     private void getCurrentWeatherData(String url) {
+        cityNameTxt.setText(cityName);
         // thực thi request mà mình gửi đi
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url
@@ -176,12 +205,11 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             //location and date
                             String day = jsonObject.getString("dt");
-                            String city = jsonObject.getString("name");
                             long m = Long.valueOf(day);
                             Date date =  new Date(m * 1000L);
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE dd-MM-yyyy");
                             String datem = simpleDateFormat.format(date);
-                            cityDay.setText(city+"__"+datem);
+                            cityDay.setText(datem);
 
                             //weather and icon
                             JSONArray jsonArrayWeather = jsonObject.getJSONArray("weather");
@@ -199,11 +227,11 @@ public class MainActivity extends AppCompatActivity {
                             String lowm = String.valueOf(l.intValue());
                             Double t = Double.valueOf(jsonObjectMain.getString("temp"));
                             String tempm = String.valueOf(t.intValue());
-                            hightLow.setText("H:"+hightm+"° L:"+lowm+"°");
+                            hightLow.setText("H: "+hightm+"°C L: "+lowm+"°C");
                             temp.setText(tempm+"°C");
 
                             //cloud,humidity and windyspeed
-                            windyspeed.setText(jsonObject.getJSONObject("wind").getString("speed")+"m/s");
+                            windyspeed.setText(jsonObject.getJSONObject("wind").getString("speed")+" m/s");
                             humidity.setText(jsonObjectMain.getString("humidity")+"%");
                             cloud.setText(jsonObject.getJSONObject("clouds").getString("all")+"%");
                         } catch (JSONException e) {

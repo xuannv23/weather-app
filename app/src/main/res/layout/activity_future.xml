@@ -72,7 +72,7 @@
                             android:id="@+id/city1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Tomorrow"
+                            android:text="Ngày mai"
                             android:textSize="20sp"
                             android:textColor="@color/white"/>
 

@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -59,7 +61,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private RecyclerView.Adapter adapterHourly;
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView imvIcon;
 
     private String cityName;
+    private Boolean check = true;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     String x;
 
@@ -78,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setView();
         ktraQuyen();
-
+        swipeRefreshLayout.setOnRefreshListener(this);
     }
 
     @Override
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 timkiem(query);
                 InputMethodManager mrg = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 mrg.hideSoftInputFromWindow(searchView.getWindowToken(),0);
+                searchView.setQuery("",false);
                 return true;
             }
 
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             getCurrentWeatherData(link);
             getForeCastWeatherData(urlc);
             cityNameTxt.setText(city);
-
+            check = false;
         }
     }
 
@@ -140,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
         windyspeed = (TextView) findViewById(R.id.txtWindySpeed);
         humidity = (TextView) findViewById(R.id.txtHumidity);
         cityNameTxt = (TextView) findViewById(R.id.nameLocation);
-        recyclerView = findViewById(R.id.RvHour);
+        recyclerView = (RecyclerView) findViewById(R.id.RvHour);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.Refesh);
 
     }
 
@@ -249,39 +255,6 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
 
-//private void getLocation() {
-//    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//        return;
-//    }
-//    //yêu cầu cập nhật vị trí
-//    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-//        @Override
-//        public void onLocationChanged(@NonNull Location location) {
-//            latitude = String.valueOf(location.getLatitude());
-//            longitude = String.valueOf(location.getLongitude());
-//            String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-//            String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-//            x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-//            // Xử lý vị trí hiện tại (latitude và longitude)
-//            getCurrentWeatherData(url);
-//            getForeCastWeatherData(urlfc);
-//            // Ngưng lắng nghe vị trí sau khi lấy được vị trí hiện tại
-//            locationManager.removeUpdates(this);
-//        }
-//
-//        @Override
-//        public void onProviderDisabled(@NonNull String provider) {
-//        }
-//
-//        @Override
-//        public void onProviderEnabled(@NonNull String provider) {
-//        }
-//
-//        @Override
-//        public void onStatusChanged(String provider, int status, Bundle extras) {
-//        }
-//    });
-//}
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -351,5 +324,19 @@ public class MainActivity extends AppCompatActivity {
     }
     static boolean isEmpty(String txt) {
         return TextUtils.isEmpty(txt);
+    }
+
+    @Override
+    public void onRefresh() {
+        if(check == false){
+            String x= cityNameTxt.getText().toString();
+            getLocation();
+            if(!cityName.equals(x)){
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            check = true;
+        }else{
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 }

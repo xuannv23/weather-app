@@ -38,4 +38,51 @@ public class Weather extends Future{
         this.deg = deg;
     }
 
+    public String getCloudy() {
+        return cloudy;
+    }
+
+    public void setCloudy(String cloudy) {
+        this.cloudy = cloudy;
+    }
+
+    public String getWindySpeed() {
+        return windySpeed;
+    }
+
+    public void setWindySpeed(String windySpeed) {
+        this.windySpeed = windySpeed;
+    }
+
+    public String getHumidyty() {
+        return humidyty;
+    }
+
+    public void setHumidyty(String humidyty) {
+        this.humidyty = humidyty;
+    }
+
+    public String getTempTb() {
+        return tempTb;
+    }
+
+    public void setTempTb(String tempTb) {
+        this.tempTb = tempTb;
+    }
+
+    public String getPressure() {
+        return pressure;
+    }
+
+    public void setPressure(String pressure) {
+        this.pressure = pressure;
+    }
+
+    public String getDeg() {
+        return deg;
+    }
+
+    public void setDeg(String deg) {
+        this.deg = deg;
+    }
 }

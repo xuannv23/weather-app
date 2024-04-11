@@ -45,7 +45,7 @@ public class FutureActivity extends AppCompatActivity {
     ImageView pic1;
     TextView city1, temp1, main1, cloudy1, windy1, humidity1, location;
 
-    ArrayList<Weather> weatherArrayList = new ArrayList<>();
+    public static ArrayList<Weather> weatherArrayList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,13 +124,19 @@ public class FutureActivity extends AppCompatActivity {
                                 }
 
                                 //add tt chi tiet weather
+                                String cloudy = jsonObjectHour.getJSONObject("clouds").getString("all");
+                                String winspeed = jsonObjectHour.getJSONObject("wind").getString("speed");
+                                String degg = jsonObjectHour.getJSONObject("wind").getString("deg");
+                                String hum = jsonObjectHour.getJSONObject("main").getString("humidity");
+                                String tem = jsonObjectHour.getJSONObject("main").getString("temp");
+                                String as = jsonObjectHour.getJSONObject("main").getString("pressure");
 
 
                                 String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
                                 String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
                                 String status = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("main");
                                 items.add(new Future(day, link, status, temph, templ));
-                                weatherArrayList.add(new Weather());
+                                weatherArrayList.add(new Weather(status,cloudy,winspeed,hum,tem,as,degg));
                             }
 
                             recyclerView.setLayoutManager(new LinearLayoutManager(FutureActivity.this,LinearLayoutManager.VERTICAL,false));

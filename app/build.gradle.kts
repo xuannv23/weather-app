@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -38,7 +39,8 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8") //doc du lieu hinh anh thong qua internet
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
-
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-messaging")
 
     //noinspection GradleCompatible
     implementation("androidx.appcompat:appcompat:1.6.1")

@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +23,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -50,6 +53,9 @@ import com.example.myappweather.Adapter.HourlyAdapter;
 import com.example.myappweather.BroadcastReceiver.NetWorkBRC;
 import com.example.myappweather.Model.Hourly;
 import com.example.myappweather.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.PicassoProvider;
 
@@ -68,6 +74,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    public static final String CHANNEL_ID = "push_notification_id";
     private RecyclerView.Adapter adapterHourly;
     private RecyclerView recyclerView;
     LocationManager locationManager;
@@ -93,8 +100,36 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setView();
         ktraQuyen();
         setRefresh();
-
+        creatChannelNotification();
+        getToken();
     }
+
+    public void getToken(){
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("aaaaaaaaaaaaaaaaaaa", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        Log.d("aaaaaaaaaaaaaaaaaaaaaaaaaa", token);
+                    }
+                });
+    }
+    private void creatChannelNotification(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "PushNotification", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+    }
+
     public void setRefresh(){
         swipeRefreshLayout.setOnRefreshListener(this);
     }
@@ -169,6 +204,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             hightLow.setText("H: " + FF(Ch)+"°F L: "+FF(Cl)+"°F");
             fillDataF();
             Log.d("111111111111111111111111111111111",checkTemp.toString());
+        }
+        if(item.getItemId()==R.id.info){
+            Intent info = new Intent(MainActivity.this, InforActivity.class);
+            startActivity(info);
         }
         return super.onOptionsItemSelected(item);
     }

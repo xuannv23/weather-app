@@ -1,6 +1,8 @@
 package com.example.myappweather.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,20 +31,12 @@ import java.util.ArrayList;
 public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder> {
 
     ArrayList<Future> items;
-    ArrayList<Weather> itemWeather;
     Context context;
-
-    InterfaceWeather interfaceWeather;
     public FutureAdapter(ArrayList<Future> items, Context context) {
         this.items = items;
         this.context = context;
     }
 
-    public  FutureAdapter(ArrayList<Weather> items, Context context, InterfaceWeather inter){
-        this.itemWeather = items;
-        this.context = context;
-        this.interfaceWeather = inter;
-    }
 
     @NonNull
     @Override
@@ -53,7 +47,7 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FutureAdapter.viewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FutureAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.dayTxt.setText(items.get(position).getDay());
         holder.status.setText(items.get(position).getStatus());
         if(MainActivity.checkTemp == true){
@@ -68,7 +62,24 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
         holder.click.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                interfaceWeather.onClickItemWeather();
+                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setTitle("Thông tin thời tiết");
+                String tonghop = "Trạng thái: "+ FutureActivity.weatherArrayList.get(position).getStatus()+"\n"
+                        +  "Độ che phủ mây(%): "+ FutureActivity.weatherArrayList.get(position).getCloudy()+"\n"
+                        +  "Tốc độ gió(m/s): "+ FutureActivity.weatherArrayList.get(position).getWindySpeed()+"\n"
+                        +  "Độ ẩm(%): "+ FutureActivity.weatherArrayList.get(position).getHumidyty()+"\n"
+                        +  "Nhiệt độ(°C): "+ FutureActivity.weatherArrayList.get(position).getTempTb()+"\n"
+                        +  "Áp suất không khí(hPa): "+ FutureActivity.weatherArrayList.get(position).getPressure()+"\n"
+                        +  "Hướng gió(°): "+ FutureActivity.weatherArrayList.get(position).getDeg()+"\n";
+                dialog.setMessage(tonghop);
+                dialog.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.cancel();
+                    }
+                });
+                dialog.show();
             }
         });
     }

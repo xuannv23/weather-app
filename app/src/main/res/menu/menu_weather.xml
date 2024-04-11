@@ -27,6 +27,11 @@
                 android:orderInCategory="3"
                 />
         </menu>
-    </item>
 
+    </item>
+    <item
+        app:showAsAction="ifRoom"
+        android:id="@+id/info"
+        android:orderInCategory="4"
+        android:title="Giới thiệu" />
 </menu>

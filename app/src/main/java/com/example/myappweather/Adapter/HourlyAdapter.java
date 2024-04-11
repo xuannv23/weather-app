@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.myappweather.Activities.MainActivity;
 import com.example.myappweather.Model.Hourly;
 import com.example.myappweather.R;
 import com.squareup.picasso.Picasso;
@@ -39,7 +40,12 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.viewHolder
     @Override
     public void onBindViewHolder(@NonNull HourlyAdapter.viewHolder holder, int position) {
         holder.hourTxt.setText(items.get(position).getHour());
-        holder.tempTxt.setText(items.get(position).getTemp() + "°C");
+        if(MainActivity.checkTemp == true){
+            holder.tempTxt.setText(items.get(position).getTemp() + "°C");
+        }else{
+            holder.tempTxt.setText(items.get(position).getTemp() + "°F");
+        }
+
         Picasso.get().load(items.get(position).getPicPath()).into(holder.pic);
     }
 

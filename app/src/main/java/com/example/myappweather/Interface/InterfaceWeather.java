@@ -1,2 +1,8 @@
-package com.example.myappweather.Interface;public interface InterfaceWeather {
+package com.example.myappweather.Interface;
+
+import com.example.myappweather.Model.Weather;
+
+public interface InterfaceWeather {
+    void onClickItemWeather(Weather weather);
+
 }

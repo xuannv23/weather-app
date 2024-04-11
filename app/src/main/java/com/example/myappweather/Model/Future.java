@@ -8,6 +8,10 @@ public class Future {
     private int lowTemp;
 
     public Future(){};
+
+    public Future(String status){
+        this.status = status;
+    }
     public Future(String day, String picPath, String status, int hightTemp, int lowTemp) {
         this.day = day;
         this.picPath = picPath;

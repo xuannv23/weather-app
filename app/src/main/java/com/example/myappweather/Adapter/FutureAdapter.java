@@ -11,13 +11,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myappweather.Activities.FutureActivity;
 import com.example.myappweather.Activities.MainActivity;
+import com.example.myappweather.Interface.InterfaceWeather;
 import com.example.myappweather.Model.Future;
+import com.example.myappweather.Model.Weather;
 import com.example.myappweather.R;
 import com.squareup.picasso.Picasso;
 
@@ -26,12 +29,19 @@ import java.util.ArrayList;
 public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder> {
 
     ArrayList<Future> items;
+    ArrayList<Weather> itemWeather;
     Context context;
 
-
+    InterfaceWeather interfaceWeather;
     public FutureAdapter(ArrayList<Future> items, Context context) {
         this.items = items;
         this.context = context;
+    }
+
+    public  FutureAdapter(ArrayList<Weather> items, Context context, InterfaceWeather inter){
+        this.itemWeather = items;
+        this.context = context;
+        this.interfaceWeather = inter;
     }
 
     @NonNull
@@ -44,15 +54,21 @@ public class FutureAdapter extends RecyclerView.Adapter<FutureAdapter.viewHolder
 
     @Override
     public void onBindViewHolder(@NonNull FutureAdapter.viewHolder holder, int position) {
-
         holder.dayTxt.setText(items.get(position).getDay());
         holder.status.setText(items.get(position).getStatus());
-        holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");
-        holder.lowTxt.setText(items.get(position).getLowTemp()+"°C");
+        if(MainActivity.checkTemp == true){
+            holder.hightTxt.setText(items.get(position).getHightTemp()+"°C");
+            holder.lowTxt.setText(items.get(position).getLowTemp()+"°C");
+        }else {
+            holder.hightTxt.setText(items.get(position).getHightTemp()+"°F");
+            holder.lowTxt.setText(items.get(position).getLowTemp()+"°F");
+        }
+
         Picasso.get().load(items.get(position).getPicPath()).into(holder.pic);
         holder.click.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                interfaceWeather.onClickItemWeather();
             }
         });
     }

@@ -6,8 +6,27 @@
         app:showAsAction="ifRoom"
         app:actionViewClass="android.widget.SearchView" />
     <item
+        android:icon="@drawable/next5day"
+        app:showAsAction="ifRoom"
         android:id="@+id/next5day"
-        android:orderInCategory="1"
         android:title="Next 5 day" />
+    <item
+        app:showAsAction="never"
+        android:id="@+id/caidat"
+        android:orderInCategory="1"
+        android:title="Chuyển đổi">
+        <menu>
+            <item
+                android:title="Độ C/C"
+                android:orderInCategory="2"
+                android:id="@+id/CtoC"
+                />
+            <item
+                android:title="Độ F/F"
+                android:id="@+id/FtoF"
+                android:orderInCategory="3"
+                />
+        </menu>
+    </item>
 
 </menu>

@@ -10,14 +10,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -44,6 +47,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.myappweather.Adapter.HourlyAdapter;
+import com.example.myappweather.BroadcastReceiver.NetWorkBRC;
 import com.example.myappweather.Model.Hourly;
 import com.example.myappweather.R;
 import com.squareup.picasso.Picasso;
@@ -71,20 +75,34 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ImageView imvIcon;
 
     private String cityName;
-    private Boolean check = true;
+    private Boolean check = true, checkCity = true;
+    public static Boolean checkTemp = true;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     String x;
+
+    int C, Ch, Cl;
+    ArrayList<Hourly> tempsF = new ArrayList<>();
+    ArrayList<Hourly> items = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RegisterNetWorkBrc();
         setView();
         ktraQuyen();
+        setRefresh();
+
+    }
+    public void setRefresh(){
         swipeRefreshLayout.setOnRefreshListener(this);
     }
-
+    public void RegisterNetWorkBrc(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(new NetWorkBRC(MainActivity.this), intentFilter);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_weather, menu);
@@ -111,16 +129,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void timkiem(String city) {
+//        checkTemp = true;
         if(isEmpty(city)){
             Toast.makeText(MainActivity.this,"Cần nhập đủ thông tin",Toast.LENGTH_SHORT).show();
         }
         else{
             String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
             String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+
             x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+
+
             getCurrentWeatherData(link);
             getForeCastWeatherData(urlc);
-            cityNameTxt.setText(city);
+//            if(checkCity == true){
+//                cityNameTxt.setText(city);
+//            }
             check = false;
         }
     }
@@ -130,12 +154,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if(item.getItemId()==R.id.next5day){
             Intent intent = new Intent(MainActivity.this, FutureActivity.class);
             intent.putExtra("link",x);
+            intent.putExtra("location",cityNameTxt.getText().toString());
             startActivity(intent);
+        }
+        if(item.getItemId()==R.id.CtoC){
+            checkTemp = true;
+            temp.setText(CC(C) + "°C");
+            hightLow.setText("H: " + CC(Ch)+"°C L: "+CC(Cl)+"°C");
+            fillDataC();
+        }
+        if(item.getItemId()==R.id.FtoF){
+            checkTemp = false;
+            temp.setText(FF(C) + "°F");
+            hightLow.setText("H: " + FF(Ch)+"°F L: "+FF(Cl)+"°F");
+            fillDataF();
+            Log.d("111111111111111111111111111111111",checkTemp.toString());
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setView() {
+    public void setView() {
         cityDay = (TextView) findViewById(R.id.city_day);
         mainWeather = (TextView) findViewById(R.id.main_weather);
         imvIcon = (ImageView) findViewById(R.id.image_view_icon);
@@ -150,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     }
 
-    private void ktraQuyen() {
+    public void ktraQuyen() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -192,12 +230,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+
         // Xử lý vị trí hiện tại (latitude và longitude)
         getCurrentWeatherData(url);
         getForeCastWeatherData(urlfc);
     }
     private void getCurrentWeatherData(String url) {
-        cityNameTxt.setText(cityName);
+
         // thực thi request mà mình gửi đi
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url
@@ -205,11 +244,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-//                        Log.d("ket qua: ", response);////////////////////////
                         try {
 
                             JSONObject jsonObject = new JSONObject(response);
                             //location and date
+                            cityNameTxt.setText(jsonObject.getString("name"));
                             String day = jsonObject.getString("dt");
                             long m = Long.valueOf(day);
                             Date date =  new Date(m * 1000L);
@@ -233,6 +272,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             String lowm = String.valueOf(l.intValue());
                             Double t = Double.valueOf(jsonObjectMain.getString("temp"));
                             String tempm = String.valueOf(t.intValue());
+                            C = t.intValue();
+                            Ch = h.intValue();
+                            Cl = l.intValue();
                             hightLow.setText("H: "+hightm+"°C L: "+lowm+"°C");
                             temp.setText(tempm+"°C");
 
@@ -276,29 +318,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-//                        Log.d("ket qua: ", response);////////////////////////
+                        tempsF.clear();
+                        items.clear();
                         try {
+
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray jsonArrayList = jsonObject.getJSONArray("list");
 
                             JSONObject jsonObjectHour;
 
-                            ArrayList<Hourly> items = new ArrayList<>();
+
                             for(int i=0;i<8;i++){
                                 jsonObjectHour = jsonArrayList.getJSONObject(i);
                                 String time = toTime(jsonObjectHour.getString("dt"));
                                 Double h = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp"));
                                 int temp = h.intValue();
-
                                 String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
                                 String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
-
+                                tempsF.add(new Hourly(time,(int) (temp*1.8 + 32), link));
                                 items.add(new Hourly(time,temp, link));
                             }
                             recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
-                            adapterHourly = new HourlyAdapter(items, MainActivity.this);
-                            recyclerView.setAdapter(adapterHourly);
-                            adapterHourly.notifyDataSetChanged();
+                            fillDataC();
+
 
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
@@ -309,7 +351,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "kiem tra lai noi dung ban nhap", Toast.LENGTH_SHORT).show();
+//                        checkCity = false;
+                        Toast.makeText(MainActivity.this, "Error...", Toast.LENGTH_SHORT).show();
+
                     }
                 });
         requestQueue.add(stringRequest);
@@ -328,8 +372,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+        checkTemp= true;
         if(check == false){
             String x= cityNameTxt.getText().toString();
+
             getLocation();
             if(!cityName.equals(x)){
                 swipeRefreshLayout.setRefreshing(false);
@@ -338,5 +384,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    public int CC(int x){
+        return x;
+    }
+
+    public int FF(int x){
+        return (int) (x * 1.8 + 32);
+    }
+
+    public void fillDataC(){
+        adapterHourly = new HourlyAdapter(items, MainActivity.this);
+        recyclerView.setAdapter(adapterHourly);
+        adapterHourly.notifyDataSetChanged();
+    }
+    public void fillDataF(){
+        adapterHourly = new HourlyAdapter(tempsF, MainActivity.this);
+        recyclerView.setAdapter(adapterHourly);
+        adapterHourly.notifyDataSetChanged();
     }
 }

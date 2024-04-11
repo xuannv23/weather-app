@@ -82,7 +82,7 @@
                 android:id="@+id/hight_low"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="H:27 L:18"
+                android:text="H: 27 L: 18"
                 android:textAlignment="center"
                 android:layout_marginTop="6dp"
                 android:textColor="@color/white"

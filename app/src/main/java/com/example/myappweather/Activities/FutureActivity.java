@@ -26,6 +26,7 @@ import com.example.myappweather.Adapter.FutureAdapter;
 import com.example.myappweather.Adapter.HourlyAdapter;
 import com.example.myappweather.Model.Future;
 import com.example.myappweather.Model.Hourly;
+import com.example.myappweather.Model.Weather;
 import com.example.myappweather.R;
 import com.squareup.picasso.Picasso;
 
@@ -42,16 +43,17 @@ public class FutureActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     String link;
     ImageView pic1;
-    TextView city1, temp1, main1, cloudy1, windy1, humidity1;
+    TextView city1, temp1, main1, cloudy1, windy1, humidity1, location;
+
+    ArrayList<Weather> weatherArrayList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_future);
         setViews();
         link = getlink();
+        getLocation();
         getForeCastWeatherData(link);
-
-        setVariable();
     }
 
     public static void click(Future abc){
@@ -70,7 +72,7 @@ public class FutureActivity extends AppCompatActivity {
         windy1 = (TextView) findViewById(R.id.windy1);
         humidity1 = (TextView) findViewById(R.id.humidity1);
         recyclerView = findViewById(R.id.RVDay);
-
+        location = findViewById(R.id.location1);
     }
 
     private void getForeCastWeatherData(String url){
@@ -81,6 +83,7 @@ public class FutureActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
 //                        Log.d("ket qua: ", response);////////////////////////
+                        weatherArrayList.clear();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray jsonArrayList = jsonObject.getJSONArray("list");
@@ -93,7 +96,12 @@ public class FutureActivity extends AppCompatActivity {
 //                            city1.setText(jsonObject.getJSONObject("city").getString("name")+"tommorow");
                             Double t = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp"));
                             String tempm = String.valueOf(t.intValue());
-                            temp1.setText(tempm+"°C");
+                            if(MainActivity.checkTemp == true){
+                                temp1.setText(tempm+"°C");
+                            }else{
+                                int k = (int) (t.intValue() * 1.8 + 32);
+                                temp1.setText((String.valueOf(k)+"°F"));
+                            }
                             main1.setText(jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("main"));
                             cloudy1.setText(jsonObjectHour.getJSONObject("clouds").getString("all") + "%");
                             windy1.setText(jsonObjectHour.getJSONObject("wind").getString("speed") + " m/s");
@@ -105,15 +113,24 @@ public class FutureActivity extends AppCompatActivity {
                                 String day = toDayOfWeek(jsonObjectHour.getString("dt"));
 
                                 Double h = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp_max"));
-                                int temph = h.intValue();
                                 Double l = Double.valueOf(jsonObjectHour.getJSONObject("main").getString("temp_min"));
-                                int templ = l.intValue();
+                                int templ, temph;
+                                if(MainActivity.checkTemp == true){
+                                    temph = h.intValue();
+                                    templ = l.intValue();
+                                }else {
+                                    temph = (int) (h.intValue() * 1.8 + 32);
+                                    templ = (int) (l.intValue()* 1.8 + 32);
+                                }
+
+                                //add tt chi tiet weather
+
 
                                 String icon = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("icon");
                                 String link = "https://openweathermap.org/img/wn/"+icon+"@4x.png";
                                 String status = jsonObjectHour.getJSONArray("weather").getJSONObject(0).getString("main");
                                 items.add(new Future(day, link, status, temph, templ));
-
+                                weatherArrayList.add(new Weather());
                             }
 
                             recyclerView.setLayoutManager(new LinearLayoutManager(FutureActivity.this,LinearLayoutManager.VERTICAL,false));
@@ -138,16 +155,12 @@ public class FutureActivity extends AppCompatActivity {
     private String getlink() {
         Intent intent = getIntent();
         return intent.getStringExtra("link");
+
     }
 
-    private void setVariable() {
-        ConstraintLayout backBtn = findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FutureActivity.this, MainActivity.class));
-            }
-        });
+    private void getLocation(){
+        Intent intent = getIntent();
+        location.setText(intent.getStringExtra("location"));
     }
 
 

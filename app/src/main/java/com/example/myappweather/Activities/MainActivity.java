@@ -3,6 +3,7 @@ package com.example.myappweather.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,9 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,25 +18,15 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,11 +41,7 @@ import com.example.myappweather.Adapter.HourlyAdapter;
 import com.example.myappweather.BroadcastReceiver.NetWorkBRC;
 import com.example.myappweather.Model.Hourly;
 import com.example.myappweather.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.PicassoProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,13 +50,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
-
+    Toolbar toolbar;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     public static final String CHANNEL_ID = "push_notification_id";
     private RecyclerView.Adapter adapterHourly;
@@ -100,44 +83,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setView();
         ktraQuyen();
         setRefresh();
-        creatChannelNotification();
-        getToken();
     }
 
-    public void getToken(){
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("aaaaaaaaaaaaaaaaaaa", "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-
-                        // Log and toast
-                        Log.d("aaaaaaaaaaaaaaaaaaaaaaaaaa", token);
-                    }
-                });
-    }
-    private void creatChannelNotification(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "PushNotification", NotificationManager.IMPORTANCE_DEFAULT);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
-    }
-
-    public void setRefresh(){
+    public void setRefresh() {
         swipeRefreshLayout.setOnRefreshListener(this);
     }
-    public void RegisterNetWorkBrc(){
+
+    public void RegisterNetWorkBrc() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(new NetWorkBRC(MainActivity.this), intentFilter);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_weather, menu);
@@ -149,8 +106,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 // Xử lý khi nhấn nút tìm kiếm hoặc nhấn phím Enter
                 timkiem(query);
                 InputMethodManager mrg = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                mrg.hideSoftInputFromWindow(searchView.getWindowToken(),0);
-                searchView.setQuery("",false);
+                mrg.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+                searchView.setQuery("", false);
                 return true;
             }
 
@@ -165,14 +122,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void timkiem(String city) {
 //        checkTemp = true;
-        if(isEmpty(city)){
-            Toast.makeText(MainActivity.this,"Cần nhập đủ thông tin",Toast.LENGTH_SHORT).show();
-        }
-        else{
-            String link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
-            String urlc = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+        if (isEmpty(city)) {
+            Toast.makeText(MainActivity.this, "Cần nhập đủ thông tin", Toast.LENGTH_SHORT).show();
+        } else {
+            String link = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            String urlc = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
 
-            x = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
+            x = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
 
 
             getCurrentWeatherData(link);
@@ -186,26 +142,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.next5day){
+        if (item.getItemId() == R.id.next5day) {
             Intent intent = new Intent(MainActivity.this, FutureActivity.class);
-            intent.putExtra("link",x);
-            intent.putExtra("location",cityNameTxt.getText().toString());
+            intent.putExtra("link", x);
+            intent.putExtra("location", cityNameTxt.getText().toString());
             startActivity(intent);
         }
-        if(item.getItemId()==R.id.CtoC){
+        if (item.getItemId() == R.id.CtoC) {
             checkTemp = true;
             temp.setText(CC(C) + "°C");
-            hightLow.setText("H: " + CC(Ch)+"°C L: "+CC(Cl)+"°C");
+            hightLow.setText("H: " + CC(Ch) + "°C L: " + CC(Cl) + "°C");
             fillDataC();
         }
-        if(item.getItemId()==R.id.FtoF){
+        if (item.getItemId() == R.id.FtoF) {
             checkTemp = false;
             temp.setText(FF(C) + "°F");
-            hightLow.setText("H: " + FF(Ch)+"°F L: "+FF(Cl)+"°F");
+            hightLow.setText("H: " + FF(Ch) + "°F L: " + FF(Cl) + "°F");
             fillDataF();
-            Log.d("111111111111111111111111111111111",checkTemp.toString());
+            Log.d("111111111111111111111111111111111", checkTemp.toString());
         }
-        if(item.getItemId()==R.id.info){
+        if (item.getItemId() == R.id.info) {
             Intent info = new Intent(MainActivity.this, InforActivity.class);
             startActivity(info);
         }
@@ -239,16 +195,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    private String getCityName(Double lon, Double lat){
+    private String getCityName(Double lon, Double lat) {
         String cityName = "Not found";
         Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
         try {
             List<Address> addresses = gcd.getFromLocation(lat, lon, 10);
-            for(Address add : addresses){
+            for (Address add : addresses) {
                 String city = add.getLocality();
-                if(city != null && !city.equals("")){
+                if (city != null && !city.equals("")) {
                     cityName = city;
-                }else{
+                } else {
                     Log.d("TAG", "City not found");
                 }
             }
@@ -257,15 +213,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         return cityName;
     }
-    private void getLocation(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+    private void getLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
-        cityName = getCityName(longitude, latitude);
         String url = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         String urlfc = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
         x = "https://api.openweathermap.org/data/2.5/forecast?lat="+latitude+"&lon="+longitude+"&appid=15d04f0b2d4468620d7ad3467eef82f9&units=metric";
@@ -273,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Xử lý vị trí hiện tại (latitude và longitude)
         getCurrentWeatherData(url);
         getForeCastWeatherData(urlfc);
+        Log.d("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",url);
     }
     private void getCurrentWeatherData(String url) {
 

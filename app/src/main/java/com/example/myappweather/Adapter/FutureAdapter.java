@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.myappweather.Activities.FutureActivity;
 import com.example.myappweather.Activities.MainActivity;
-import com.example.myappweather.Interface.InterfaceWeather;
 import com.example.myappweather.Model.Future;
 import com.example.myappweather.Model.Weather;
 import com.example.myappweather.R;
